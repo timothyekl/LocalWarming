@@ -1,6 +1,3 @@
-#!/usr/bin/python
-# Requires Apple python for Gurobi compatibility :P
-
 import math
 import pylab
 import re

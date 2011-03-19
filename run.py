@@ -1,5 +1,4 @@
-#!/usr/bin/python
-# Needs Apple Python for Gurobi :P
+#!/usr/bin/env python
 
 from localwarming import *
 

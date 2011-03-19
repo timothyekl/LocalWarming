@@ -1,6 +1,3 @@
-#!/usr/bin/python
-# Needs Apple-supplied Python - Gurobi dies otherwise!
-
 from coopr.pyomo import *
 from coopr.opt import *
 import math

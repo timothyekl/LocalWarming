@@ -2,3 +2,4 @@
 data/
 model-pyomo.dat
 model.ampl
+run.sh
