@@ -1,3 +1,4 @@
 *.pyc
 data/
 model-pyomo.dat
+model.ampl
