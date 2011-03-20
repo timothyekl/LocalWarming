@@ -1,17 +1,19 @@
 from coopr.pyomo import *
 from coopr.opt import *
 import math
-from pprint import pprint
 import time
 
 class WarmingModel:
     # Configs
     USE_SOLAR_SHIFT = True
     
-    def __init__(self):
+    data = ([], [])
+    
+    def __init__(self, data):
         self._timestamp = None
         self._tsAccum = 0.0
         self.timestamp()
+        self.data = data
     
     # Helpers
     def timestamp(self):
@@ -33,18 +35,23 @@ class WarmingModel:
         M = Model()
         
         # sets
-        M.Dates = Set()
+        M.Dates = Set(initialize=self.data[0])
         if self.USE_SOLAR_SHIFT:
             M.XRange = RangeSet(0,5)
         else:
             M.XRange = RangeSet(0,3)
         
         # parameters
-        M.Avg = Param(M.Dates)
-        M.Day = Param(M.Dates)
+        def InitAvg(d, M):
+            if d not in self.data[0]:
+                print("Can't find {0} in data list; quitting...".format(d))
+                quit()
+            return self.data[1][self.data[0].index(d)]
+        M.Avg = Param(M.Dates, initialize=InitAvg)
         
-        M.YearlySin = Param(M.Dates)
-        M.YearlyCos = Param(M.Dates)
+        def InitDay(d, M):
+            return self.data[0].index(d) + 1
+        M.Day = Param(M.Dates, initialize=InitDay)
         
         PI = 4 * atan(1)
         
@@ -69,8 +76,8 @@ class WarmingModel:
                         <= M.Dev[d];
             else:
                 return M.X[0] + M.X[1] * M.Day[d] \
-                            + M.X[2] * M.YearlyCos[d] \
-                            + M.X[3] * M.YearlySin[d] \
+                            + M.X[2] * math.cos(2 * PI * M.Day[int(d)] / 365.25) \
+                            + M.X[3] * math.sin(2 * PI * M.Day[int(d)] / 365.25) \
                             - M.Avg[d] \
                         <= M.Dev[d];
         M.RequireDefPosDev = Constraint(M.Dates, rule=CalcDefPosDev)
@@ -87,14 +94,15 @@ class WarmingModel:
             else:
                 return -1 * M.Dev[d] <= \
                     M.X[0] + M.X[1] * M.Day[d] \
-                            + M.X[2] * M.YearlyCos[d] \
-                            + M.X[3] * M.YearlySin[d] \
+                            + M.X[2] * math.cos(2 * PI * M.Day[int(d)] / 365.25) \
+                            + M.X[3] * math.sin(2 * PI * M.Day[int(d)] / 365.25) \
                             - M.Avg[d];
         M.RequireDefNegDev = Constraint(M.Dates, rule=CalcDefNegDev)
         
         # solve
         print("Set up Model object: {0}s".format(self.timestamp()))
-        instance = M.create("model-pyomo.dat")
+        #instance = M.create("model-pyomo.dat")
+        instance = M.create()
         print("Created instance: {0}s".format(self.timestamp()))
         opt = SolverFactory("gurobi")
         opt.keepFiles = False

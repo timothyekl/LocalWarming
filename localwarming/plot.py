@@ -6,11 +6,14 @@ import sys
 PI = 4 * math.atan(1)
 
 class WarmingPlot:
-    dates = []
-    temps = []
-    
     def __init__(self, data, constants):
+        """Prepares a plot object with constants from a model and data
+        from a data factory. The `data` struct needs to be a 2-tuple of
+        lists containing dates and temperatures, in that order."""
+        # Save full data object, just in case
         self.data = data
+        self.dates = data[0]
+        self.temps = data[1]
         self.constants = constants
     
     # Model function
@@ -24,20 +27,7 @@ class WarmingPlot:
         return self.constants[0] + self.constants[1] * x
     
     def show(self, plotparts):
-        # TODO refactor so it uses actual data structure instead of rereading file
-        with open('data/TerreHauteRegional.dat', 'r') as f:
-            i = 0
-            for line in f:
-                match = re.search('\s+(\d{8})\s+(-?\d{1,2}\.\d{1})\s', line)
-                if not match:
-                    print("Failed to find match for line: {0}".format(line))
-                else:
-                    self.dates.append(int(match.group(1)))
-                    self.temps.append(float(match.group(2)))
-                    i = i + 1
-        
         if len(self.dates) == len(self.temps):
-            print("Confirmed lengths match ({0} items); plotting...".format(len(self.dates)))
             pylab.scatter(list(range(len(self.temps))),self.temps)
             
             for arg in plotparts:
@@ -47,3 +37,6 @@ class WarmingPlot:
                     pylab.plot([self.trendVal(x) for x in list(range(len(self.temps)))], 'g',linewidth=3)
             
             pylab.show()
+        else:
+            print("Given inappropriate data (dates and temps don't match); quitting")
+            quit()
