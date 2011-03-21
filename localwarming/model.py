@@ -29,11 +29,13 @@ class WarmingModel:
         return self._tsAccum
     
     @staticmethod
-    def disFunction(x, d):
+    def modelFunction(x, d):
         return x[0] + x[1] * d + x[2] * math.cos(2 * math.pi * d / 365.25) + x[3] * math.sin(2 * math.pi * d / 365.25) \
                     + x[4] * math.cos(2 * math.pi * d / (10.7 * 365.25)) + x[5] * math.sin(2 * math.pi * d / (10.7 * 365.25))
     
     def solve(self):
+        print("Beginning solve with {0} dates and {1} temps".format(len(self.data[0]), len(self.data[1])))
+        
         # model
         M = Model()
         
@@ -64,11 +66,11 @@ class WarmingModel:
         
         # constraints
         def CalcDefPosDev(d, M):
-            return self.disFunction(M.X, M.Day[int(d)]) - M.Avg[d] <= M.Dev[d]
+            return self.modelFunction(M.X, M.Day[int(d)]) - M.Avg[d] <= M.Dev[d]
         M.RequireDefPosDev = Constraint(M.Dates, rule=CalcDefPosDev)
         
         def CalcDefNegDev(d, M):
-            return -1 * M.Dev[d] <= self.disFunction(M.X, M.Day[int(d)]) - M.Avg[d]
+            return -1 * M.Dev[d] <= self.modelFunction(M.X, M.Day[int(d)]) - M.Avg[d]
         M.RequireDefNegDev = Constraint(M.Dates, rule=CalcDefNegDev)
         
         # solve
@@ -98,6 +100,6 @@ class WarmingModel:
             return self.data[0].index(d) + 1
         
         def expected(d):
-            return self.disFunction(self.solution, day(d))
+            return self.modelFunction(self.solution, day(d))
         
         return [actual(d) - expected(d) for d in self.data[0]]

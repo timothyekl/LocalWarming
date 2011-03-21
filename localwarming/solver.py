@@ -1,4 +1,5 @@
 from model import WarmingModel
+import math
 import random
 
 class WarmingSolver:
@@ -13,15 +14,31 @@ class WarmingSolver:
         a best fit with confidence intervals. Returns a list of fit
         constants as a list of tuples `(const, diff)`, where the interval
         is defined by `const +/- diff`."""
+        
+        # Do the actual run to find the fit and trendline
         self.fitModel = WarmingModel(self.data)
         constants = self.fitModel.solve()
         devs = self.deviations()
         
+        # Do a bunch more iterations to find a confidence interval for the above
+        ITER_COUNT = 2
         random.seed()
-        randDays = [random.choice(self.data[1]) for i in list(range(len(self.data[1])))]
+        xstar = []
+        for fuzzIter in range(ITER_COUNT):
+            fuzzedTemps = [self.data[1][i] + random.choice(devs) for i in list(range(len(self.data[0])))]
+            fuzzedModel = WarmingModel((self.data[0], fuzzedTemps))
+            fuzzedConstants = fuzzedModel.solve()
+            print("Fuzzy constants: " + str(fuzzedConstants))
+            xstar.append(fuzzedConstants)
         
+        # Actually compute the confidence interval
+        stdevs = []
+        for pos in range(len(constants)):
+            cDevs = [(xstar[i][pos] - constants[pos]) ** 2 for i in range(ITER_COUNT)]
+            cStdDev = math.sqrt(sum(cDevs) / float(len(cDevs)))
+            stdevs.append(cStdDev)
         
-        return [(x,0) for x in constants]
+        return [(constants[i], stdevs[i]) for i in range(len(constants))]
     
     def deviations(self):
         return self.fitModel.deviations()

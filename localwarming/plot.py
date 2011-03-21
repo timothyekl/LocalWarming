@@ -18,11 +18,7 @@ class WarmingDataPlot:
     
     # Model function
     def solnVal(self, x):
-        return WarmingModel.disFunction(self.constants, x)
-        #return self.constants[0] + self.constants[1] * x + self.constants[2] * math.cos(2 * math.pi * x / 365.25) \
-        #                        + self.constants[3] * math.sin(2 * math.pi * x / 365.25) \
-        #                        + self.constants[4] * math.cos(2 * math.pi * x / (365.25 * 10.7)) \
-        #                        + self.constants[5] * math.sin(2 * math.pi * x / (365.25 * 10.7))
+        return WarmingModel.modelFunction(self.constants, x)
     
     def trendVal(self, x):
         return self.constants[0] + self.constants[1] * x
