@@ -21,7 +21,7 @@ class WarmingSolver:
         devs = self.deviations()
         
         # Do a bunch more iterations to find a confidence interval for the above
-        ITER_COUNT = 2
+        ITER_COUNT = 10
         random.seed()
         xstar = []
         for fuzzIter in range(ITER_COUNT):

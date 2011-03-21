@@ -45,9 +45,9 @@ class WarmingModel:
         
         # parameters
         def InitAvg(d, M):
-            if d not in self.data[0]:
-                print("Can't find {0} in data list; quitting...".format(d))
-                quit()
+            #if d not in self.data[0]:
+            #    print("Can't find {0} in data list; quitting...".format(d))
+            #    quit()
             return self.data[1][self.data[0].index(d)]
         M.Avg = Param(M.Dates, initialize=InitAvg)
         
