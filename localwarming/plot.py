@@ -3,9 +3,9 @@ import pylab
 import re
 import sys
 
-PI = 4 * math.atan(1)
+from localwarming import WarmingModel
 
-class WarmingPlot:
+class WarmingDataPlot:
     def __init__(self, data, constants):
         """Prepares a plot object with constants from a model and data
         from a data factory. The `data` struct needs to be a 2-tuple of
@@ -18,16 +18,18 @@ class WarmingPlot:
     
     # Model function
     def solnVal(self, x):
-        return self.constants[0] + self.constants[1] * x + self.constants[2] * math.cos(2 * PI * x / 365.25) \
-                                + self.constants[3] * math.sin(2 * PI * x / 365.25) \
-                                + self.constants[4] * math.cos(2 * PI * x / (365.25 * 10.7)) \
-                                + self.constants[5] * math.sin(2 * PI * x / (365.25 * 10.7))
+        return WarmingModel.disFunction(self.constants, x)
+        #return self.constants[0] + self.constants[1] * x + self.constants[2] * math.cos(2 * math.pi * x / 365.25) \
+        #                        + self.constants[3] * math.sin(2 * math.pi * x / 365.25) \
+        #                        + self.constants[4] * math.cos(2 * math.pi * x / (365.25 * 10.7)) \
+        #                        + self.constants[5] * math.sin(2 * math.pi * x / (365.25 * 10.7))
     
     def trendVal(self, x):
         return self.constants[0] + self.constants[1] * x
     
-    def show(self, plotparts):
+    def draw(self, plotparts):
         if len(self.dates) == len(self.temps):
+            pylab.figure()
             pylab.scatter(list(range(len(self.temps))),self.temps)
             
             for arg in plotparts:
@@ -36,7 +38,26 @@ class WarmingPlot:
                 elif arg == "trendline":
                     pylab.plot([self.trendVal(x) for x in list(range(len(self.temps)))], 'g',linewidth=3)
             
-            pylab.show()
+            pylab.draw()
         else:
             print("Given inappropriate data (dates and temps don't match); quitting")
             quit()
+
+class WarmingDeviationPlot:
+    def __init__(self, data):
+        """Prepares a plot objects with deviations from a model. The
+        `data` argument needs to be a simple list of deviation floats."""
+        self.data = data
+    
+    def draw(self):
+        pylab.figure()
+        
+        spread = math.ceil(max(self.data)) - math.floor(min(self.data))
+        pylab.hist(self.data, bins=spread, normed=True)
+        
+        def normalValue(x):
+            return 1 / math.sqrt(2 * math.pi * spread) * math.exp(-1 * x * x / (2 * spread))
+        xlist = list(range(int(math.floor(min(self.data))), int(math.ceil(max(self.data))) + 1, 1))
+        pylab.plot(xlist, [normalValue(x) for x in xlist], 'r', linewidth=2)
+        
+        pylab.draw()
