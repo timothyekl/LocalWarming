@@ -5,6 +5,8 @@ import pprint
 
 df = WarmingDataFactory('data/TerreHauteRegional.dat')
 solver = WarmingSolver(df.getDates(), df.getTemps())
+solver.DISABLE_VARIABILITY_CHECK = True
+solver.DISABLE_CONFIDENCE_INTERVALS = True
 soln = solver.solve()
 for i in range(len(soln)):
     print("X_{0} = {1} +- {2}".format(i, soln[i][0], soln[i][1]))
