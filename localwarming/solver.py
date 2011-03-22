@@ -29,8 +29,8 @@ class WarmingSolver:
         self.devs = self.fitModel.deviations()
         
         # Verify the optimality of solutions
+        xvariabilities = { "min" : [], "max" : [] }
         if not self.DISABLE_VARIABILITY_CHECK:
-            xvariabilities = { "min" : [], "max" : [] }
             for op in xvariabilities.keys():
                 for xsub in [0, 1]:
                     variabilityModel = WarmingVariabilityModel(self.dates, self.temps, xsub, op, self.constants, sum(list(map(abs, self.devs))))
@@ -38,14 +38,15 @@ class WarmingSolver:
             pprint.pprint(xvariabilities)
         
         # Verify the chosen value for solar cycle length
+        cycleLengths = [9.7 + 0.2 * i for i in range(11)]
+        cycleDevs = []
         if not self.DISABLE_CYCLE_LENGTH_CHECK:
-            cycleLengths = [9.7 + 0.2 * i for i in range(10)]
-            cycleDevs = []
             for cycleLength in cycleLengths:
                 solarFitModel = WarmingFitModel(self.dates, self.temps, solarCycle=cycleLength)
-                cycleDevs.append(sum([abs(dev) for dev in self.fitModel.deviations()]))
+                cycleDevs.append(sum([abs(dev) for dev in solarFitModel.deviations()]))
             pprint.pprint(cycleDevs)
         
+        stdevs = [0 for x in self.constants]
         if not self.DISABLE_CONFIDENCE_INTERVALS:
             # Do a bunch more iterations to find a confidence interval for the original fit
             ITER_COUNT = 50
@@ -59,14 +60,15 @@ class WarmingSolver:
                 xstar.append(fuzzedConstants)
             
             # Actually compute the confidence interval
-            stdevs = [0 for x in self.constants]
             if ITER_COUNT > 0:
                 for pos in range(len(self.constants)):
                     cDevs = [(xstar[i][pos] - self.constants[pos]) ** 2 for i in range(ITER_COUNT)]
                     cStdDev = math.sqrt(sum(cDevs) / float(len(cDevs)))
                     stdevs[pos] = cStdDev
         
-        return [(self.constants[i], 2 * stdevs[i]) for i in range(len(self.constants))]
+        return {"fit" : [(self.constants[i], 2 * stdevs[i]) for i in range(len(self.constants))], \
+                "xvariabilities" : xvariabilities, \
+                "cycle" : (cycleLengths, cycleDevs) }
     
-    def deviations(self):
+    def fitDeviations(self):
         return self.devs

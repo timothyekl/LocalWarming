@@ -42,7 +42,7 @@ class WarmingDataPlot:
 class WarmingDeviationPlot:
     def __init__(self, deviations):
         """Prepares a plot objects with deviations from a model. The
-        `data` argument needs to be a simple list of deviation floats."""
+        `deviations` argument needs to be a simple list of deviation floats."""
         self.deviations = deviations
     
     def draw(self):
@@ -57,3 +57,21 @@ class WarmingDeviationPlot:
         pylab.plot(xlist, [normalValue(x) for x in xlist], 'r', linewidth=2)
         
         pylab.draw()
+
+class WarmingMinDeviationPlot:
+    def __init__(self, xs, deviations):
+        """Prepares a plot objects with deviations from a set of models. The
+        `deviations` argument needs to be a simple list of deviation floats,
+        and the `xs` argument is a list of matching length with x-values for
+        the given deviations."""
+        self.xs = xs
+        self.deviations = deviations
+    
+    def draw(self):
+        if len(self.xs) == len(self.deviations):
+            pylab.figure()
+            pylab.plot(self.xs, self.deviations, 'r', linewidth=3)
+            pylab.axvline(x=10.7, linewidth=2, color='b')
+            pylab.draw()
+        
+        
