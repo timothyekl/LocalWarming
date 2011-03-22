@@ -61,8 +61,9 @@ class WarmingSolver:
             
             # Actually compute the confidence interval
             if ITER_COUNT > 0:
+                cMeans = [sum(fuzzedX[xpos] for fuzzedX in xstar) / float(ITER_COUNT) for xpos in range(len(self.constants))]
                 for pos in range(len(self.constants)):
-                    cDevs = [(xstar[i][pos] - self.constants[pos]) ** 2 for i in range(ITER_COUNT)]
+                    cDevs = [(xstar[i][pos] - cMeans[pos]) ** 2 for i in range(ITER_COUNT)]
                     cStdDev = math.sqrt(sum(cDevs) / float(len(cDevs)))
                     stdevs[pos] = cStdDev
         

@@ -44,6 +44,7 @@ class WarmingFitModel(WarmingModel):
     
     def solve(self):
         print("Beginning solve with {0} dates and {1} temps".format(len(self.dates), len(self.temps)))
+        assert len(self.dates) == len(self.temps)
         
         # model
         M = Model()
@@ -135,6 +136,7 @@ class WarmingVariabilityModel(WarmingModel):
     
     def solve(self):
         print("Beginning solve with {0} dates and {1} temps".format(len(self.dates), len(self.temps)))
+        assert len(self.dates) == len(self.temps)
         
         # model
         M = Model()

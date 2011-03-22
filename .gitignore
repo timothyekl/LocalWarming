@@ -5,3 +5,4 @@ model.ampl
 run.sh
 gurobi.log
 guppy/
+logs/
