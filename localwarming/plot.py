@@ -6,14 +6,14 @@ import sys
 from localwarming import WarmingModel
 
 class WarmingDataPlot:
-    def __init__(self, data, constants):
+    def __init__(self, dates, temps, constants):
         """Prepares a plot object with constants from a model and data
         from a data factory. The `data` struct needs to be a 2-tuple of
         lists containing dates and temperatures, in that order."""
         # Save full data object, just in case
-        self.data = data
-        self.dates = data[0]
-        self.temps = data[1]
+        self.data = (dates, temps)
+        self.dates = dates
+        self.temps = temps
         self.constants = constants
     
     # Model function
@@ -23,7 +23,7 @@ class WarmingDataPlot:
     def trendVal(self, x):
         return self.constants[0] + self.constants[1] * x
     
-    def draw(self, plotparts):
+    def draw(self, plotparts=[]):
         if len(self.dates) == len(self.temps):
             pylab.figure()
             pylab.scatter(list(range(len(self.temps))),self.temps)
@@ -40,20 +40,20 @@ class WarmingDataPlot:
             quit()
 
 class WarmingDeviationPlot:
-    def __init__(self, data):
+    def __init__(self, deviations):
         """Prepares a plot objects with deviations from a model. The
         `data` argument needs to be a simple list of deviation floats."""
-        self.data = data
+        self.deviations = deviations
     
     def draw(self):
         pylab.figure()
         
-        spread = math.ceil(max(self.data)) - math.floor(min(self.data))
-        pylab.hist(self.data, bins=spread, normed=True)
+        spread = math.ceil(max(self.deviations)) - math.floor(min(self.deviations))
+        pylab.hist(self.deviations, bins=spread, normed=True)
         
         def normalValue(x):
             return 1 / math.sqrt(2 * math.pi * spread) * math.exp(-1 * x * x / (2 * spread))
-        xlist = list(range(int(math.floor(min(self.data))), int(math.ceil(max(self.data))) + 1, 1))
+        xlist = list(range(int(math.floor(min(self.deviations))), int(math.ceil(max(self.deviations))) + 1, 1))
         pylab.plot(xlist, [normalValue(x) for x in xlist], 'r', linewidth=2)
         
         pylab.draw()

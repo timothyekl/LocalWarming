@@ -25,6 +25,12 @@ class WarmingDataFactory:
                     self.temps.append(float(match.group(2)))
                     i = i + 1
     
-    def data(self):
+    def getData(self):
         """Get the data contained by the factory for use in other classes."""
         return (self.dates, self.temps)
+    
+    def getTemps(self):
+        return self.temps
+    
+    def getDates(self):
+        return self.dates

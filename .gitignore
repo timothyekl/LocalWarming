@@ -4,3 +4,4 @@ model-pyomo.dat
 model.ampl
 run.sh
 gurobi.log
+guppy/
